@@ -3,8 +3,8 @@ using System.Runtime.Versioning;
 
 ReadData(CreateConnection());
 //InsertCustomer(CreateConnection());
-RemoveCustomer(CreateConnection());
-
+//RemoveCustomer(CreateConnection());
+FindCustomer(CreateConnection());
 static SQLiteConnection CreateConnection()
 {
     SQLiteConnection connection = new SQLiteConnection("Data Source=C:\\Users\\rists\\Desktop\\TKTK KMT2023\\1-K Programmeerimise algkursus - kevad 2024 - J. Voronetskaja\\Week13\\mydb.db; Version=3; New=True; Compress=True;");
@@ -83,4 +83,32 @@ static void RemoveCustomer(SQLiteConnection myConnection)
     Console.WriteLine($"{rowRemoved} eemaldati nimekirjast.");
 
     ReadData(myConnection);
+}
+
+static void FindCustomer(SQLiteConnection myConnection)
+{
+    SQLiteDataReader reader;
+    SQLiteCommand cmd;
+    string searchName;
+
+    Console.WriteLine("Sisesta otsitava inimese eesnimi:");
+    searchName = Console.ReadLine();
+
+    cmd = myConnection.CreateCommand();
+    cmd.CommandText = $"SELECT customer.rowid, customer.firstName, customer.lastName, status.statusType " +
+        $"FROM customerStatus " +
+        $"JOIN customer ON customer.rowid = customerStatus.customerId " +
+        $"WHERE firstname LIKE '{searchName}'";
+
+    reader = cmd.ExecuteReader();
+
+    while (reader.Read())
+    {
+        string readerRowId = reader["rowid"].ToString();
+        string readerStringName = reader.GetString(1);
+        string readerStringLastName = reader.GetString(2);
+        string readerStringStatus = reader.GetString(3);
+        Console.WriteLine($"Otsingu tulemus: ID: {readerRowId}. {readerStringName}. {readerStringLastName}. Staatus: {readerStringStatus}");
+    }
+    myConnection.Close();
 }
